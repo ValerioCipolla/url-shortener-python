@@ -1,0 +1,21 @@
+* {
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  font-size: x-large;
+}
+
+body {
+  display: grid;
+  justify-content: center;
+  align-content: center;
+  height: 100vh;
+}
+
+form {
+display: flex;
+flex-direction: column;
+justify-content: center;
+}
+
+#submit-btn {
+  text-transform: uppercase;
+}
