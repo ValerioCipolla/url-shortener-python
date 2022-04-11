@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for, redirect
 import os
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -16,14 +16,14 @@ class Urls(db.Model):
 
   id = db.Column(db.Integer, primary_key=True)
   long = db.Column(db.String())
-  short = db.Column(db.String(3))
+  short = db.Column(db.String())
   
   def __init__(self, long, short):
     self.long = long
     self.short = short
 
   def __repr__(self):
-    return f"long: {self.long} - short: {self.short} \n"
+    return f"\n id: {self.id} - long: {self.long} - short: {self.short}"
 
 def shorten_url():
     letters = string.ascii_lowercase + string.ascii_uppercase
@@ -32,13 +32,11 @@ def shorten_url():
         rand_letters = "".join(rand_letters)
         short_url = Urls.query.filter_by(short=rand_letters).first()
         if not short_url:
-            return rand_letters
+            return request.base_url + rand_letters
 
 @app.route("/", methods=["POST", "GET"])
 
-def hello_world():
-  urls = Urls.query.all()
-  print(urls)
+def home_page():
   if request.method == "POST":
     url_received = request.form["url"]
     found_url = Urls.query.filter_by(long=url_received).first()
@@ -58,3 +56,21 @@ def hello_world():
       }
   else:
       return render_template("home.html")
+
+@app.route("/all")
+def show_all_urls():
+  urls = Urls.query.all()
+  result = {}
+  for url in urls:
+    result[url.id] = {"long_url": url.long, "short_url": url.short}
+  return result
+
+@app.route("/<short_url>")
+def redirection(short_url):
+  url = Urls.query.filter_by(short=request.base_url).first()
+  if url:
+    return redirect(url.long)
+  else:
+    return f"<h1>Url with shortcut '{short_url}' does not exist</h1>"
+
+
