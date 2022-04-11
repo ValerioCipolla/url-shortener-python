@@ -35,7 +35,6 @@ def shorten_url():
             return request.base_url + rand_letters
 
 @app.route("/", methods=["POST", "GET"])
-
 def home_page():
   if request.method == "POST":
     if request.form.get("submit-btn") == "submit":
@@ -64,8 +63,8 @@ def home_page():
 def show_all_urls():
   urls = Urls.query.all()
   result = {}
-  for url in urls:
-    result[url.id] = {"long_url": url.long, "short_url": url.short}
+  for index, url in enumerate(urls):
+    result[index] = {"id": url.id, "long_url": url.long, "short_url": url.short}
   return result
 
 @app.route("/<short_url>")
@@ -75,5 +74,39 @@ def redirection(short_url):
     return redirect(url.long)
   else:
     return f"<h1>Url with shortcut '{short_url}' does not exist</h1>"
+
+@app.route("/api/<id>", methods=["GET"])
+def get_url_by_id(id):
+  url = Urls.query.get(id)
+  if url:
+    return {
+      "success": True,
+      "message": f"url with id {id} found",
+      "url": {
+        "long_url": url.long,
+        "short_url": url.short
+      }
+    }
+  else:
+    return {
+      "success": False,
+      "message": f"no url with id {id} found"
+    }
+
+@app.route("/api/<id>", methods=["DELETE"])
+def delete_url_by_id(id):
+  url = Urls.query.get(id)
+  if url:
+    db.session.delete(url)
+    db.session.commit()
+    return {
+      "success": True,
+      "message": f"url with id {id} successfully deleted."
+    }
+  else:
+    return {
+      "success": False,
+      "message": f"no url with id {id} found."
+    }
 
 
