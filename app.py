@@ -38,22 +38,25 @@ def shorten_url():
 
 def home_page():
   if request.method == "POST":
-    url_received = request.form["url"]
-    found_url = Urls.query.filter_by(long=url_received).first()
-    if found_url:
-      return {
-        "long_url": found_url.long,
-        "short_url": found_url.short
-      }
-    else:
-      short_url = shorten_url()
-      new_url = Urls(url_received, short_url)
-      db.session.add(new_url)
-      db.session.commit()
-      return {
-        "long_url": url_received,
-        "short_url": short_url
-      }
+    if request.form.get("submit-btn") == "submit":
+      url_received = request.form["url"]
+      found_url = Urls.query.filter_by(long=url_received).first()
+      if found_url:
+        return {
+          "long_url": found_url.long,
+          "short_url": found_url.short
+        }
+      else:
+        short_url = shorten_url()
+        new_url = Urls(url_received, short_url)
+        db.session.add(new_url)
+        db.session.commit()
+        return {
+          "long_url": url_received,
+          "short_url": short_url
+        }
+    elif request.form.get("see-all-btn") == "see all URLS":
+      return redirect(request.base_url + "all")
   else:
       return render_template("home.html")
 
